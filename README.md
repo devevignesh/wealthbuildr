@@ -27,4 +27,4 @@ Here's how you can contribute:
 
 ## License
 
-Wealthbuildr is an open source under the GNU Affero General Public License Version 3 (AGPLv3) or any later version. You can [find it here](https://github.com/devevignesh/wealthbuildr/blob/main/LICENSE).
+Wealthbuildr is an open source under the GNU Affero General Public License Version 3 (AGPLv3) or any later version. You can [find it here](https://github.com/devevignesh/wealthbuildr/blob/master/LICENSE).
