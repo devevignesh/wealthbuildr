@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import Link from "next/link";
 import NavTabs from "@/components/nav-tabs";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,34 +8,36 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const GOOGLE_ANALYTICS_ID = process.env.GA4_ANALYTICS_ID;
+
 const title = "Wealthbuildr | Your Journey to Financial Abundance";
 const description =
   "Wealthbuildr is your personal guide through the four phases of wealth building - Accumulation, Growth, Independent, and Abundant.";
 
 export const metadata: Metadata = {
-	title,
-	description,
-	twitter: {
-		card: 'summary_large_image',
-		title,
-		description,
-		creator: '@devevignesh',
-		images: ['/og.jpg'],
-	},
-	openGraph: {
-		title,
-		description,
-		type: 'website',
-	},
+  title,
+  description,
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    creator: "@devevignesh",
+    images: ["https://wealthbuildr.vercel.app/og.jpg"]
+  },
+  openGraph: {
+    title,
+    description,
+    type: "website",
+    images: ["https://wealthbuildr.vercel.app/og.jpg"]
+  }
 };
 
 export const viewport: Viewport = {
-	width: 'device-width',
-	initialScale: 1,
-	userScalable: false,
-	themeColor: '#09090b',
+  width: "device-width",
+  initialScale: 1,
+  userScalable: false,
+  themeColor: "#09090b"
 };
-
 
 export default function RootLayout({
   children
@@ -66,6 +69,19 @@ export default function RootLayout({
         </main>
         <Toaster />
       </body>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="ga4" strategy="afterInteractive">
+        {`
+						window.dataLayer = window.dataLayer || [];
+						function gtag(){dataLayer.push(arguments);}
+						gtag('js', new Date());
+
+						gtag('config', '${GOOGLE_ANALYTICS_ID}');
+					`}
+      </Script>
     </html>
   );
 }
