@@ -196,9 +196,9 @@ export default function GrowthPhase() {
             independence. The primary goal in this phase is to grow the
             investments made during the Accumulation Phase until they reach a
             value of 25 times your annual expenses. Although this phase is the
-            longest, it’s not necessarily the hardest. In fact, you can return
-            to a more balanced lifestyle, easing off the extreme frugality of
-            the previous phase.
+            longest, it&apos;s not necessarily the hardest. In fact, you can
+            return to a more balanced lifestyle, easing off the extreme
+            frugality of the previous phase.
           </p>
           <div className="relative w-full rounded-lg border px-4 py-3 text-sm text-foreground mt-4 bg-amber-50 border-amber-200">
             <div className="text-sm [&_p]:leading-relaxed">
@@ -436,8 +436,8 @@ export default function GrowthPhase() {
           </li>
           <li>
             <span className="font-medium ">Home Purchase</span> - Buy a home
-            only if you've saved 20% for a down payment, using money from this
-            phase, not the Accumulation Phase.
+            only if you&apos;ve saved 20% for a down payment, using money from
+            this phase, not the Accumulation Phase.
           </li>
           <li>
             <span className="font-medium ">Debt Management</span> - Only take on
@@ -454,7 +454,7 @@ export default function GrowthPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           As life progresses, responsibilities increase, and so do expenses.
           This makes saving more challenging. However, because of the aggressive
-          savings and investments made during the Accumulation Phase, there’s
+          savings and investments made during the Accumulation Phase, there&apos;s
           less pressure to maintain such high savings rates in this phase.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
@@ -472,18 +472,18 @@ export default function GrowthPhase() {
           such diversification option is Real Estate.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          If you’re considering buying a home, ensure you’ve saved at least 20%
-          for a down payment. If you haven’t reached this target, it’s a sign
-          you’re not yet ready to make this purchase. Importantly, this down
-          payment should come from the savings accrued during the Growth Phase
-          not from the nest egg built during the Accumulation Phase.
+          If you&apos;re considering buying a home, ensure you&apos;ve saved at
+          least 20% for a down payment. If you haven&apos;t reached this target, it&apos;s
+          a sign you&apos;re not yet ready to make this purchase. Importantly,
+          this down payment should come from the savings accrued during the
+          Growth Phase not from the nest egg built during the Accumulation Phase.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           When purchasing a home, focus on meeting your current needs rather
-          than indulging in desires. Don’t buy the biggest house you can afford;
-          instead, buy what suits your family size. Larger homes come with
+          than indulging in desires. Don&apos;t buy the biggest house you can
+          afford; instead, buy what suits your family size. Larger homes come with
           larger expenses, such as higher insurance premiums, utility bills,
-          mortgage payments, property taxes, and maintenance costs. It’s
+          mortgage payments, property taxes, and maintenance costs. It&apos;s
           essential to evaluate whether these extra costs are worth it or if the
           money would be better invested to further build wealth.
         </p>
@@ -493,7 +493,7 @@ export default function GrowthPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           This phase also provides the opportunity to fulfill some long-held,
           modest desires, such as purchasing your dream car. However, this
-          doesn’t mean splurging on luxury brands like Mercedes-Benz or BMW;
+          doesn&apos;t mean splurging on luxury brands like Mercedes-Benz or BMW;
           that level of luxury is reserved for the next phase. For now, focus on
           reliable, affordable cars like the Maruti Swift or Honda City in
           India, or the Honda Accord or Toyota Camry in the USA. These cars are
@@ -502,8 +502,8 @@ export default function GrowthPhase() {
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           Resist the temptation to stand out with an expensive or unique car
-          during this phase. It’s okay to blend in; there will be plenty of time
-          to express your individuality in the next phase.
+          during this phase. It&apos;s okay to blend in; there will be plenty of
+          time to express your individuality in the next phase.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
           Managing Debt Wisely

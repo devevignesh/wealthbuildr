@@ -47,8 +47,8 @@ export default function IndependentPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           For those in the FIRE (Financial Independence, Retire Early)
           community, reaching a net worth of 25 times your annual expenses
-          signals that you're ready to retire. However, in this phase, we go
-          beyond simply retiring. If you choose to continue working, you now
+          signals that you&apos;re ready to retire. However, in this phase, we
+          go beyond simply retiring. If you choose to continue working, you now
           have the freedom to use your earnings for luxuries without the
           pressure to save.
         </p>
@@ -57,23 +57,23 @@ export default function IndependentPhase() {
         </h2>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           This is the time to enjoy the luxuries you may have deferred in
-          earlier phases. Whether it’s purchasing that unique luxury car you’ve
-          always dreamed of or upgrading to a larger, more comfortable home,
-          these expenditures are now within reach. In this phase, spending on
-          luxury items won't hinder your wealth-building efforts, as long as
-          you're still earning an income.
+          earlier phases. Whether it&apos;s purchasing that unique luxury car
+          you&apos;ve always dreamed of or upgrading to a larger, more comfortable
+          home, these expenditures are now within reach. In this phase, spending
+          on luxury items won&apos;t hinder your wealth-building efforts, as long
+          as you&apos;re still earning an income.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
           Maintaining Financial Discipline
         </h2>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          Despite the newfound freedom, it's crucial to adhere to one important
-          rule: Do not touch your nest egg the 25 times your annual expenses
-          that you’ve accumulated. All luxury spending should come from your
-          current earnings, not from your carefully built nest egg. This
-          discipline ensures that your financial independence remains intact,
-          allowing you to enjoy your wealth without jeopardizing your long-term
-          financial security.
+          Despite the newfound freedom, it&apos;s crucial to adhere to one
+          important rule: Do not touch your nest egg the 25 times your annual
+          expenses that you&apos;ve accumulated. All luxury spending should come
+          from your current earnings, not from your carefully built nest egg.
+          This discipline ensures that your financial independence remains
+          intact, allowing you to enjoy your wealth without jeopardizing your
+          long-term financial security.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
           The Freedom to Choose

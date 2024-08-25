@@ -167,9 +167,9 @@ export default function AbundantPhase() {
             foundation, you can enjoy luxury without working, but staying active
             and engaged is key. This phase often shifts focus from personal
             wealth to community impact, turning your success into a broader
-            legacy. By thinking long-term and using strategies like the "Rule of
-            72," reaching millions or even billions is achievable. Dedication
-            and smart investing make this ambitious goal possible.
+            legacy. By thinking long-term and using strategies like the &quot;Rule
+            of 72,&quot; reaching millions or even billions is achievable.
+            Dedication and smart investing make this ambitious goal possible.
           </p>
           <div className="relative w-full rounded-lg border px-4 py-3 text-sm text-foreground mt-4 bg-amber-50 border-amber-200">
             <div className="text-sm [&_p]:leading-relaxed">

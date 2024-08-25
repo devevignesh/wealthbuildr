@@ -1,6 +1,4 @@
-import forms from "@tailwindcss/forms";
 import typography from "@tailwindcss/typography";
-import scrollbarHide from "tailwind-scrollbar-hide";
 import type { Config } from "tailwindcss";
 import radix from "tailwindcss-radix";
 import colors from "tailwindcss/colors";
@@ -205,7 +203,7 @@ const config = {
   ],
   plugins: [
     typography,
-    scrollbarHide,
+    require("tailwind-scrollbar-hide"),
     radix,
     require("@headlessui/tailwindcss")
   ]

@@ -32,24 +32,24 @@ export default function Home() {
           principles. Financial knowledge is the cornerstone of both
           accumulating and preserving wealth. Without it, even those who have
           earned substantial sums like actors or athletes can find themselves
-          facing financial ruin. This isn't just a tale of the rich and famous;
-          it’s a reality that could affect anyone. Imagine winning a lottery how
-          would you manage that sudden influx of wealth? Without the right
-          knowledge, many would quickly squander it on luxury items, only to
-          face financial difficulties soon after.
+          facing financial ruin. This isn&apos;t just a tale of the rich and
+          famous; it&apos;s a reality that could affect anyone. Imagine winning a
+          lottery how would you manage that sudden influx of wealth? Without the
+          right knowledge, many would quickly squander it on luxury items, only
+          to face financial difficulties soon after.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          It's essential to realize that wealth cannot be built solely through
+          It&apos;s essential to realize that wealth cannot be built solely through
           professional success in fields like engineering or medicine. Financial
-          knowledge is crucial, and it’s not something you can acquire
+          knowledge is crucial, and it&apos;s not something you can acquire
           overnight. It grows gradually, much like the power of compounding.
           With every new piece of knowledge, new questions arise, leading to
           deeper understanding. The extent to which you expand your financial
           knowledge depends entirely on your curiosity and willingness to learn.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          If "Financial Knowledge" is the architect of wealth building, then
-          "Savings Rate" is the foundation. The strength of your financial
+          If &quot;Financial Knowledge&quot; is the architect of wealth building, then
+          &quot;Savings Rate&quot; is the foundation. The strength of your financial
           foundation directly correlates to how much you can save. Many people
           can easily achieve a 20% savings rate, but surpassing that requires
           specific strategies. Often, as our incomes increase, so do our
@@ -64,25 +64,25 @@ export default function Home() {
           little more than a home as their primary asset. This pattern repeats
           across generations, with people only realizing the need for serious
           financial planning later in life. By then, other priorities like
-          children’s education and marriage often take precedence, leaving
+          children&apos;s education and marriage often take precedence, leaving
           little room for wealth building.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          To break this cycle, there's a powerful concept known as Delayed Gratification. Instead
-          of immediately upgrading your lifestyle with every increase in income,
-          consider postponing those changes. This delay allows your salary
-          increases to go directly into savings, thereby strengthening the
-          foundation of your wealth-building efforts. Over an 80-year lifespan,
-          delaying lifestyle upgrades by just a few years is a small sacrifice
-          for the long-term benefits it brings.
+          To break this cycle, there&apos;s a powerful concept known as Delayed
+          Gratification. Instead of immediately upgrading your lifestyle with
+          every increase in income, consider postponing those changes. This
+          delay allows your salary increases to go directly into savings, thereby
+          strengthening the foundation of your wealth-building efforts. Over an
+          80-year lifespan, delaying lifestyle upgrades by just a few years is a
+          small sacrifice for the long-term benefits it brings.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           You have a choice: either upgrade your lifestyle to match your income
           now or delay those upgrades to build a robust financial future that
           could even benefit the next generation. As you embark on this
-          "Marathon Race" called wealth building, remember that your financial
-          journey can be divided into distinct phases, each with its own set of
-          goals and strategies.
+          &quot;Marathon Race&quot; called wealth building, remember that your
+          financial journey can be divided into distinct phases, each with its
+          own set of goals and strategies.
         </p>
       </div>
     </MaxWidthWrapper>

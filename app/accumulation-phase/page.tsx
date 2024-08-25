@@ -189,11 +189,11 @@ export default function AccumulationPhase() {
             Accumulation Phase
           </h1>
           <p className="leading-7 [&:not(:first-child)]:mt-6">
-            Of all the phases, this "Accumulation Phase" is the most important
-            one. What we do in this phase decides whether we are going to touch
-            the finish line in our marathon race or not. The goal of this phase
-            is "Accumulation". That means, maximizing the savings by reducing
-            the expenses and living thrifty.
+            Of all the phases, this &quot;Accumulation Phase&quot; is the most
+            important one. What we do in this phase decides whether we are
+            going to touch the finish line in our marathon race or not. The goal
+            of this phase is &quot;Accumulation&quot;. That means, maximizing
+            the savings by reducing the expenses and living thrifty.
           </p>
           <p className="leading-7 [&:not(:first-child)]:mt-6">
             This calculator is an online tool that helps you determine your SIP
@@ -437,23 +437,24 @@ export default function AccumulationPhase() {
           Saving and Spending
         </h2>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          In this phase, it's advisable to save up to 75% of your earnings, or
-          at the very least, aim for 50%. A crucial aspect to master during this
-          time is understanding the difference between "Needs" and "Wants." This
-          is not the time to fulfill desires; rather, it’s the time to focus on
-          essential needs and defer wants to later phases.
+          In this phase, it&apos;s advisable to save up to 75% of your earnings,
+          or at the very least, aim for 50%. A crucial aspect to master during
+          this time is understanding the difference between &quot;Needs&quot; and
+          &quot;Wants.&quot; This is not the time to fulfill desires; rather,
+          it&apos;s the time to focus on essential needs and defer wants to
+          later phases.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           For instance, if you need a vehicle to commute to work, purchasing a
-          reasonably priced bike for ₹50,000 or less addresses a "Need."
+          reasonably priced bike for ₹50,000 or less addresses a &quot;Need.&quot;
           Conversely, opting for an expensive Bullet Bike for ₹2 lakhs caters to
-          a "Desire." It’s better to avoid such desires during this phase as
-          they can significantly impact your savings.
+          a &quot;Desire.&quot; It&apos;s better to avoid such desires during
+          this phase as they can significantly impact your savings.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          Many people might say, "The main reason I got a job was to buy a new
-          car or bike." While this is often an emotional impulse driven by
-          long-held desires, the joy of owning a new vehicle typically lasts
+          Many people might say, &quot;The main reason I got a job was to buy a
+          new car or bike.&quot; While this is often an emotional impulse driven
+          by long-held desires, the joy of owning a new vehicle typically lasts
           just a week. We must ask ourselves: is it worth sacrificing future
           financial growth for fleeting happiness?
         </p>
@@ -469,8 +470,8 @@ export default function AccumulationPhase() {
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           For example, instead of buying the latest iPhone, consider a more
-          affordable Motorola phone with similar features. Moreover, there's no
-          need to upgrade your phone annually; upgrading every three years
+          affordable Motorola phone with similar features. Moreover, there&apos;s
+          no need to upgrade your phone annually; upgrading every three years
           should suffice. Buy based on your needs, not on the latest features.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
@@ -480,29 +481,29 @@ export default function AccumulationPhase() {
           Avoid buying a home during this phase, as it can hinder your financial
           growth. Many will argue that paying rent is a waste of money. However,
           paying rent is often cheaper than paying interest on a home loan,
-          especially in India. We’ll delve deeper into this topic in a future
+          especially in India. We&apos;ll delve deeper into this topic in a future
           episode.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           Living a simple, non-materialistic life with a focus on savings is the
-          key during the Accumulation Phase. This doesn’t mean living like a
+          key during the Accumulation Phase. This doesn&apos;t mean living like a
           miser, but rather living within your means. By the end of this phase,
           you should aim to have saved and invested five times your annual
-          expenses. If you’re saving 50% of your income, reaching this goal will
-          be quicker than you might think possibly within just five years. If
-          you manage to save 75%, you can complete this phase even faster.
+          expenses. If you&apos;re saving 50% of your income, reaching this goal
+          will be quicker than you might think possibly within just five years.
+          If you manage to save 75%, you can complete this phase even faster.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
-          What if you’re starting late?
+          What if you&apos;re starting late?
         </h2>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          Some of you might be thinking, "This sounds great, but I'm already
-          close to 40. I can't save 50% to 75% of my income." While it's true
-          that you can't undo past financial decisions, you can still maximize
-          your savings rate and invest as much as possible. Additionally, it’s
-          crucial to teach your children about the benefits of early
-          accumulation. While it’s up to them to follow through, they should at
-          least be aware of the option.
+          Some of you might be thinking, &quot;This sounds great, but I&apos;m
+          already close to 40. I can&apos;t save 50% to 75% of my income.&quot;
+          While it&apos;s true that you can&apos;t undo past financial decisions,
+          you can still maximize your savings rate and invest as much as possible.
+          Additionally, it&apos;s crucial to teach your children about the
+          benefits of early accumulation. While it&apos;s up to them to follow
+          through, they should at least be aware of the option.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
           Investment Strategy: Taking Calculated Risks
@@ -512,11 +513,11 @@ export default function AccumulationPhase() {
           invest in during this phase? Given that this is the earliest phase, we
           have plenty of time before retirement, allowing us to take on more
           risk. Even if asset values decline in the short term, they have time
-          to recover. Therefore, it's wise to invest in assets with the highest
-          return potential, such as stocks.
+          to recover. Therefore, it&apos;s wise to invest in assets with the
+          highest return potential, such as stocks.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          This doesn’t mean you should dive into individual stock trading.
+          This doesn&apos;t mean you should dive into individual stock trading.
           Instead, consider investing in an Index ETF.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
@@ -525,7 +526,7 @@ export default function AccumulationPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           By the end of the Accumulation Phase, your goal should be to have
           saved and invested five times your annual expenses. This investment is
-          your nest egg, the foundation of your wealth-building journey. It’s
+          your nest egg, the foundation of your wealth-building journey. It&apos;s
           crucial not to touch this investment; let it grow and work for you.
         </p>
       </MaxWidthWrapper>
