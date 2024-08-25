@@ -55,7 +55,7 @@ export default function RootLayout({
                   <div className="flex items-center">
                     <Link
                       href="/"
-                      className="hidden sm:block tracking-tight sm:text-2xl text-slate-900"
+                      className="block tracking-tight text-xl sm:text-2xl text-slate-900"
                     >
                       wealthbuildr
                     </Link>
