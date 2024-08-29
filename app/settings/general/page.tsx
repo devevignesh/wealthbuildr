@@ -197,8 +197,9 @@ export default function Settings() {
                           type="number"
                           className="text-right text-lg w-24 border-0 rounded-none border-b-2 appearance-none p-0"
                           {...field}
-                          disabled={true}
+                          disabled
                         />
+                      {/* <Percent size={18} /> */}
                       </div>
                     </FormControl>
                   </div>
@@ -208,7 +209,7 @@ export default function Settings() {
                       onValueChange={vals => {
                         field.onChange(vals[0]);
                       }}
-                      disabled={true}
+                      disabled
                       min={1}
                       max={15}
                       step={1}

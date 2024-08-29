@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { MaxWidthWrapper } from "@/components/max-width-wrapper";
 import {
   IndianRupee,
@@ -16,11 +16,13 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { SummaryNumber } from "@/components/summary-number";
 import SettingsAlert from "@/components/settings-alert";
+import { Switch } from "@/components/ui/switch";
 import { formatNumber, formatNumberForCharts } from "@/lib/numbers";
 import { useStore } from "@/lib/store";
 interface WealthDataPoint {
   year: number;
   wealth: number;
+  wealthWithoutInflation: number;
 }
 
 interface SavingsRateResult {
@@ -33,28 +35,50 @@ function calculateInvestmentYearsWithWealthData(
   monthlyInvestment: number,
   annualReturnRate: number,
   goal: number,
-  totalAccumulatedWealth: number
-): { years: number; wealthData: WealthDataPoint[]; totalWealth: number } {
+  totalAccumulatedWealth: number,
+  inflation: number
+): {
+  years: number;
+  wealthData: WealthDataPoint[];
+  totalWealth: number;
+  totalWealthWithoutInflation: number;
+} {
   const wealthData: WealthDataPoint[] = [];
   let totalWealth = totalAccumulatedWealth;
+  let totalWealthWithoutInflation = totalAccumulatedWealth;
   let years = 0;
   const monthlyRate = annualReturnRate / 12 / 100;
-  const targetAmount = expense * goal;
+  let targetAmount = expense * goal;
+  let adjustedMonthlyInvestment = monthlyInvestment;
 
   while (totalWealth < targetAmount) {
     for (let month = 0; month < 12; month++) {
-      totalWealth = (totalWealth + monthlyInvestment) * (1 + monthlyRate);
+      totalWealth =
+        (totalWealth + adjustedMonthlyInvestment) * (1 + monthlyRate);
+      totalWealthWithoutInflation =
+        (totalWealthWithoutInflation + monthlyInvestment) * (1 + monthlyRate);
     }
 
     years++;
+    // Adjust target amount and monthly investment for inflation
+    targetAmount *= 1 + inflation / 100;
+    adjustedMonthlyInvestment *= 1 + inflation / 100;
     const roundedWealth = Math.round(totalWealth);
-    wealthData.push({ year: years, wealth: roundedWealth });
+    const roundedWealthWithoutInflation = Math.round(
+      totalWealthWithoutInflation
+    );
+    wealthData.push({
+      year: years,
+      wealth: roundedWealth,
+      wealthWithoutInflation: roundedWealthWithoutInflation
+    });
   }
 
   return {
     years: years,
     wealthData: wealthData,
-    totalWealth: Math.round(totalWealth)
+    totalWealth: Math.round(totalWealth),
+    totalWealthWithoutInflation: Math.round(totalWealthWithoutInflation)
   };
 }
 
@@ -116,27 +140,30 @@ const customTooltip = (props: CustomTooltipTypeBar) => {
 };
 
 export default function GrowthPhase() {
-  const { age, expense, targetExpenseToSave, salary } = useStore(
+  const { inflationToggle, setInflationToggle } = useStore();
+  const { age, expense, targetExpenseToSave, salary, inflation } = useStore(
     state => state.settings
   );
   const { monthlyInvestment, interest, goal, wealth } = useStore(
     state => state.growthPhase
   );
-  const { wealth: totalAccumulatedWealth, savingPeriod } = useStore(
-    state => state.accumulationPhase
-  );
+  const {
+    wealth: totalAccumulatedWealth,
+    savingPeriod: accumulationSavingPeriod
+  } = useStore(state => state.accumulationPhase);
   const setGrowthPhase = useStore(state => state.setGrowthPhase);
   const monthlySalary = salary / 12; // salary is annual
   const { feedback } = calculateSavingsRate(monthlySalary, monthlyInvestment);
 
   const computedData = useMemo(() => {
-    const { years, wealthData, totalWealth } =
+    const { years, wealthData, totalWealth, totalWealthWithoutInflation } =
       calculateInvestmentYearsWithWealthData(
         expense,
         monthlyInvestment,
         interest,
         goal,
-        totalAccumulatedWealth
+        totalAccumulatedWealth,
+        inflationToggle ? inflation : 0
       );
 
     const monthlyInvestedAmount = monthlyInvestment * 12;
@@ -154,11 +181,22 @@ export default function GrowthPhase() {
       years,
       chartData,
       totalWealth,
+      totalWealthWithoutInflation,
       totalInvestedAmount,
       totalReturn,
       formattedPercentageReturn
     };
-  }, [expense, interest, monthlyInvestment, goal, totalAccumulatedWealth]);
+  }, [
+    expense,
+    monthlyInvestment,
+    interest,
+    goal,
+    totalAccumulatedWealth,
+    inflationToggle,
+    inflation
+  ]);
+  const growthPhaseCompletionAge =
+    age + computedData.years + accumulationSavingPeriod;
 
   const chartData = [
     {
@@ -211,6 +249,17 @@ export default function GrowthPhase() {
             </div>
           </div>
         </div>
+        {/* <div className="flex flex-row items-center justify-between rounded-lg border mb-3 p-3 bg-white">
+          <p className="text-sm">
+            You&apos;ve set the inflation rate to {inflation}% in your settings.
+            To disable it, you can do so here.
+          </p>
+          <Switch
+            id="inflation-mode"
+            checked={inflationToggle}
+            onCheckedChange={setInflationToggle}
+          />
+        </div> */}
         <div className="relative w-full rounded-lg border mb-3">
           <div className="rounded-xl bg-white transition-all dark:bg-gray-950 p-4 sm:p-6">
             <div className="lg:justify-between lg:items-end lg:flex">
@@ -232,37 +281,48 @@ export default function GrowthPhase() {
                     from={0}
                     to={computedData?.totalWealth}
                   />
-                  <p className="text-sm text-gray-500">Projected wealth</p>
+                  <p className="text-sm text-gray-500">
+                    Projected Wealth{" "}
+                    <span className="text-xs text-gray-500">
+                      (by age {growthPhaseCompletionAge})
+                    </span>
+                  </p>
                 </div>
               </div>
               <ul className="lg:grid-cols-3 mt-6 lg:mt-0 gap-[1px] grid-cols-1 grid bg-gray-200">
                 <li className="lg:text-right lg:py-0 py-3 px-0 lg:px-4 bg-white">
-                  <p className="font-semibold text-gray-900 text-sm">
-                    {formatNumber(totalAccumulatedWealth)}
-                  </p>
+                  <SummaryNumber
+                    className="font-semibold text-gray-900 text-sm"
+                    from={0}
+                    to={totalAccumulatedWealth}
+                  />
                   <div className="space-x-2 flex items-center lg:justify-end">
                     <span className="bg-[#e76e50] w-3 h-3 rounded flex-shrink-0"></span>
-                    <p className="text-sm text-gray-500">Accumulation phase</p>
+                    <p className="text-sm text-gray-500">Accumulation Phase</p>
                   </div>
                 </li>
                 <li className="lg:text-right lg:py-0 py-3 px-0 lg:px-4 bg-white">
-                  <p className="font-semibold text-gray-900 text-sm">
-                    {formatNumber(wealth)}
-                  </p>
+                  <SummaryNumber
+                    className="font-semibold text-gray-900 text-sm"
+                    from={0}
+                    to={wealth}
+                  />
                   <div className="space-x-2 flex items-center lg:justify-end">
                     <span className="bg-[#289d90] w-3 h-3 rounded flex-shrink-0"></span>
-                    <p className="text-sm text-gray-500">Growth phase</p>
+                    <p className="text-sm text-gray-500">Growth Phase</p>
                   </div>
                 </li>
                 <li className="lg:text-right lg:py-0 py-3 px-0 lg:px-4 bg-white">
-                  <p className="font-semibold text-gray-900 text-sm">
-                    {formatNumber(
-                      targetExpenseToSave - computedData?.totalWealth
-                    )}
-                  </p>
+                  <SummaryNumber
+                    className="font-semibold text-gray-900 text-sm"
+                    from={0}
+                    to={targetExpenseToSave - computedData?.totalWealth}
+                  />
                   <div className="space-x-2 flex items-center lg:justify-end">
                     <span className="bg-[#60a8fb] w-3 h-3 rounded flex-shrink-0"></span>
-                    <p className="text-sm text-gray-500">Target wealth</p>
+                    <p className="text-sm text-gray-500">
+                      Abundance Phase Target
+                    </p>
                   </div>
                 </li>
               </ul>
@@ -393,21 +453,43 @@ export default function GrowthPhase() {
             </div>
             <ul className="ml-6 list-disc space-y-2 leading-7 [&:not(:first-child)]:mt-6">
               <li>
-                <span className="font-medium">Savings Progress</span> - At age{" "}
-                {age + computedData?.years}, you will have{" "}
+                <span className="font-medium">Savings Progress</span> - You will
+                complete this phase in {computedData?.years} years with a{" "}
+                {formatNumber(monthlyInvestment)} SIP investment. By age{" "}
+                {growthPhaseCompletionAge}, you will have{" "}
                 <span className="text-emerald-700 font-medium">
-                  {formatNumber(computedData?.totalWealth)} (11.5%)
+                  {formatNumber(computedData?.totalWealth)} (
+                  {(
+                    (computedData?.totalWealth / targetExpenseToSave) *
+                    100
+                  ).toFixed(1)}
+                  %)
                 </span>{" "}
-                of your target wealth {formatNumber(targetExpenseToSave)}.
+                of your target abundance phase goal of{" "}
+                {formatNumber(targetExpenseToSave)}, which is 50 times your
+                annual expenses.
               </li>
+              {inflationToggle && (
+                <li>
+                  <span className="font-medium">Inflation</span> - With an
+                  inflation rate of {inflation}%, the value of your money
+                  decreases over time by{" "}
+                  {formatNumber(
+                    computedData?.totalWealth -
+                      computedData?.totalWealthWithoutInflation
+                  )}
+                  .
+                </li>
+              )}
               <li>
                 <span className="font-medium ">Investment Growth</span> -{" "}
+                Potential capital gains of
                 <span className="text-emerald-700 font-medium">
                   {" "}
                   {formatNumber(computedData?.totalReturn)} (
                   {computedData?.formattedPercentageReturn}%)
                 </span>{" "}
-                potential capital gains from your initial investment of{" "}
+                from your initial investment of{" "}
                 {formatNumber(computedData?.totalInvestedAmount)}.
               </li>
               <li>
@@ -454,8 +536,9 @@ export default function GrowthPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           As life progresses, responsibilities increase, and so do expenses.
           This makes saving more challenging. However, because of the aggressive
-          savings and investments made during the Accumulation Phase, there&apos;s
-          less pressure to maintain such high savings rates in this phase.
+          savings and investments made during the Accumulation Phase,
+          there&apos;s less pressure to maintain such high savings rates in this
+          phase.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           For a single-income household, aiming for a 20% savings rate is a good
@@ -473,19 +556,20 @@ export default function GrowthPhase() {
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           If you&apos;re considering buying a home, ensure you&apos;ve saved at
-          least 20% for a down payment. If you haven&apos;t reached this target, it&apos;s
-          a sign you&apos;re not yet ready to make this purchase. Importantly,
-          this down payment should come from the savings accrued during the
-          Growth Phase not from the nest egg built during the Accumulation Phase.
+          least 20% for a down payment. If you haven&apos;t reached this target,
+          it&apos;s a sign you&apos;re not yet ready to make this purchase.
+          Importantly, this down payment should come from the savings accrued
+          during the Growth Phase not from the nest egg built during the
+          Accumulation Phase.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           When purchasing a home, focus on meeting your current needs rather
           than indulging in desires. Don&apos;t buy the biggest house you can
-          afford; instead, buy what suits your family size. Larger homes come with
-          larger expenses, such as higher insurance premiums, utility bills,
-          mortgage payments, property taxes, and maintenance costs. It&apos;s
-          essential to evaluate whether these extra costs are worth it or if the
-          money would be better invested to further build wealth.
+          afford; instead, buy what suits your family size. Larger homes come
+          with larger expenses, such as higher insurance premiums, utility
+          bills, mortgage payments, property taxes, and maintenance costs.
+          It&apos;s essential to evaluate whether these extra costs are worth it
+          or if the money would be better invested to further build wealth.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
           Fulfilling Modest Desires
@@ -493,12 +577,13 @@ export default function GrowthPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           This phase also provides the opportunity to fulfill some long-held,
           modest desires, such as purchasing your dream car. However, this
-          doesn&apos;t mean splurging on luxury brands like Mercedes-Benz or BMW;
-          that level of luxury is reserved for the next phase. For now, focus on
-          reliable, affordable cars like the Maruti Swift or Honda City in
-          India, or the Honda Accord or Toyota Camry in the USA. These cars are
-          known for their reliability, and their insurance and maintenance costs
-          are manageable, helping you stay on track with your growth goals.
+          doesn&apos;t mean splurging on luxury brands like Mercedes-Benz or
+          BMW; that level of luxury is reserved for the next phase. For now,
+          focus on reliable, affordable cars like the Maruti Swift or Honda City
+          in India, or the Honda Accord or Toyota Camry in the USA. These cars
+          are known for their reliability, and their insurance and maintenance
+          costs are manageable, helping you stay on track with your growth
+          goals.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           Resist the temptation to stand out with an expensive or unique car

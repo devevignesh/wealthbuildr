@@ -47,11 +47,13 @@ interface StoreInterface {
   growthPhase: GrowthPhase;
   abundantPhase: AbundantPhase;
   settings: Settings;
+  inflationToggle: boolean;
   mergePhases: () => void;
   setAccumulationPhase: (newData: Partial<AccumulationPhase>) => void;
   setGrowthPhase: (newData: Partial<GrowthPhase>) => void;
   setAbundantPhase: (newData: Partial<AbundantPhase>) => void;
   setSettings: (newData: Partial<Settings>) => void;
+  setInflationToggle: () => void;
   calculateTargetExpense: (expense: number) => number;
 }
 
@@ -87,7 +89,7 @@ export const useStore = create<StoreInterface>(
         data: []
       },
       settings: {
-        inflation: 4,
+        inflation: 0,
         savingsRate: 6,
         salary: 2500000,
         age: 30,
@@ -95,6 +97,7 @@ export const useStore = create<StoreInterface>(
         targetExpenseToSave: 30000000,
         showAlert: true
       },
+      inflationToggle: false,
       calculateTargetExpense: (expense: number) => {
         const growthPhaseGoal = get().growthPhase.goal;
         return expense * (growthPhaseGoal * 2);
@@ -104,7 +107,8 @@ export const useStore = create<StoreInterface>(
           const initialAge = state.settings.age;
           const accumulationPeriod = state.accumulationPhase.savingPeriod;
           const growthPeriod = state.growthPhase.savingPeriod;
-          const abundantPhaseAge = initialAge + accumulationPeriod + growthPeriod;
+          const abundantPhaseAge =
+            initialAge + accumulationPeriod + growthPeriod;
 
           return {
             ...state,
@@ -131,7 +135,8 @@ export const useStore = create<StoreInterface>(
           return {
             ...state,
             abundantPhase: {
-              combinedNetWorth: combinedData[combinedData.length - 1]?.wealth || 0,
+              combinedNetWorth:
+                combinedData[combinedData.length - 1]?.wealth || 0,
               combinedData: combinedData
             }
           };
@@ -166,33 +171,34 @@ export const useStore = create<StoreInterface>(
           }, 0);
           return updatedState;
         }),
-        setAbundantPhase: newData =>
-          set((state: StoreInterface) => {
-            const updatedAbundantPhase = {
-              ...state.abundantPhase,
-              ...newData,
-            };
-  
-            // Calculate the offset for the abundant phase data
-            const offset = state.accumulationPhase.data.length + state.growthPhase.data.length;
-  
-            // Update combinedData by concatenating existing data with new abundant phase data
-            const updatedCombinedData = [
-              ...state.abundantPhase.combinedData.slice(0, offset),
-              ...updatedAbundantPhase.data.map(point => ({
-                ...point,
-                year: point.year + offset
-              }))
-            ];
-  
-            return {
-              ...state,
-              abundantPhase: {
-                ...updatedAbundantPhase,
-                combinedData: updatedCombinedData
-              }
-            };
-          }),
+      setAbundantPhase: newData =>
+        set((state: StoreInterface) => {
+          const updatedAbundantPhase = {
+            ...state.abundantPhase,
+            ...newData
+          };
+
+          // Calculate the offset for the abundant phase data
+          const offset =
+            state.accumulationPhase.data.length + state.growthPhase.data.length;
+
+          // Update combinedData by concatenating existing data with new abundant phase data
+          const updatedCombinedData = [
+            ...state.abundantPhase.combinedData.slice(0, offset),
+            ...updatedAbundantPhase.data.map(point => ({
+              ...point,
+              year: point.year + offset
+            }))
+          ];
+
+          return {
+            ...state,
+            abundantPhase: {
+              ...updatedAbundantPhase,
+              combinedData: updatedCombinedData
+            }
+          };
+        }),
       setSettings: newData =>
         set((state: StoreInterface) => {
           const updatedSettings = {
@@ -212,7 +218,11 @@ export const useStore = create<StoreInterface>(
             ...state,
             settings: updatedSettings
           };
-        })
+        }),
+      setInflationToggle: () =>
+        set((state: StoreInterface) => ({
+          inflationToggle: !get().inflationToggle
+        }))
     }),
     {
       name: "wealth-data"

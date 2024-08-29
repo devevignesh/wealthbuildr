@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { MaxWidthWrapper } from "@/components/max-width-wrapper";
 import {
   IndianRupee,
@@ -16,11 +16,13 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { SummaryNumber } from "@/components/summary-number";
 import SettingsAlert from "@/components/settings-alert";
+import { Switch } from "@/components/ui/switch";
 import { formatNumber } from "@/lib/numbers";
 import { useStore } from "@/lib/store";
 interface WealthDataPoint {
   year: number;
   wealth: number;
+  wealthWithoutInflation: number;
   calendarYear: number;
 }
 interface SavingsRateResult {
@@ -32,30 +34,54 @@ function calculateInvestmentYearsWithWealthData(
   expense: number,
   monthlyInvestment: number,
   annualReturnRate: number,
-  goal: number
-): { years: number; wealthData: WealthDataPoint[]; totalWealth: number } {
+  goal: number,
+  inflation: number
+): {
+  years: number;
+  wealthData: WealthDataPoint[];
+  totalWealth: number;
+  totalWealthWithoutInflation: number;
+} {
   const wealthData: WealthDataPoint[] = [];
   let totalWealth = 0;
+  let totalWealthWithoutInflation = 0;
   let years = 0;
   const monthlyRate = annualReturnRate / 12 / 100;
-  const targetAmount = expense * goal;
+  let targetAmount = expense * goal;
   const startYear = getYear(new Date());
+  let adjustedMonthlyInvestment = monthlyInvestment;
 
   while (totalWealth < targetAmount) {
     for (let month = 0; month < 12; month++) {
-      totalWealth = (totalWealth + monthlyInvestment) * (1 + monthlyRate);
+      totalWealth =
+        (totalWealth + adjustedMonthlyInvestment) * (1 + monthlyRate);
+      totalWealthWithoutInflation =
+        (totalWealthWithoutInflation + monthlyInvestment) * (1 + monthlyRate);
     }
 
     years++;
+    // Adjust target amount and monthly investment for inflation
+    targetAmount *= 1 + inflation / 100;
+    adjustedMonthlyInvestment *= 1 + inflation / 100;
+
     const roundedWealth = Math.round(totalWealth);
+    const roundedWealthWithoutInflation = Math.round(
+      totalWealthWithoutInflation
+    );
     const calendarYear = addYears(new Date(startYear, 0), years).getFullYear();
-    wealthData.push({ year: years, wealth: roundedWealth, calendarYear });
+    wealthData.push({
+      year: years,
+      wealth: roundedWealth,
+      wealthWithoutInflation: roundedWealthWithoutInflation,
+      calendarYear
+    });
   }
 
   return {
     years: years,
     wealthData: wealthData,
-    totalWealth: Math.round(totalWealth)
+    totalWealth: Math.round(totalWealth),
+    totalWealthWithoutInflation: Math.round(totalWealthWithoutInflation)
   };
 }
 
@@ -121,17 +147,19 @@ export default function AccumulationPhase() {
   const { monthlyInvestment, interest, goal, wealth } = useStore(
     state => state.accumulationPhase
   );
-  const { salary, age, expense, targetExpenseToSave } = useStore(
+  const { salary, age, expense, targetExpenseToSave, inflation } = useStore(
     state => state.settings
   );
+  const { inflationToggle, setInflationToggle } = useStore();
   const setAccumulationPhase = useStore(state => state.setAccumulationPhase);
   const computedData = useMemo(() => {
-    const { years, wealthData, totalWealth } =
+    const { years, wealthData, totalWealth, totalWealthWithoutInflation } =
       calculateInvestmentYearsWithWealthData(
         expense,
         monthlyInvestment,
         interest,
-        goal
+        goal,
+        inflationToggle ? inflation : 0
       );
 
     const monthlyInvestedAmount = monthlyInvestment * 12;
@@ -152,12 +180,20 @@ export default function AccumulationPhase() {
       totalWealth,
       totalInvestedAmount,
       totalReturn,
-      formattedPercentageReturn
+      formattedPercentageReturn,
+      totalWealthWithoutInflation
     };
 
     return computedResults;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expense, interest, monthlyInvestment, goal]);
+  }, [
+    expense,
+    interest,
+    monthlyInvestment,
+    goal,
+    setInflationToggle,
+    inflationToggle
+  ]);
   const monthlySalary = salary / 12; // salary is annual
   const { feedback } = calculateSavingsRate(monthlySalary, monthlyInvestment);
 
@@ -190,18 +226,27 @@ export default function AccumulationPhase() {
           </h1>
           <p className="leading-7 [&:not(:first-child)]:mt-6">
             Of all the phases, this &quot;Accumulation Phase&quot; is the most
-            important one. What we do in this phase decides whether we are
-            going to touch the finish line in our marathon race or not. The goal
-            of this phase is &quot;Accumulation&quot;. That means, maximizing
-            the savings by reducing the expenses and living thrifty.
+            important one. What we do in this phase decides whether we are going
+            to touch the finish line in our marathon race or not. The goal of
+            this phase is &quot;Accumulation&quot;. That means, maximizing the
+            savings by reducing the expenses and living thrifty.
           </p>
           <p className="leading-7 [&:not(:first-child)]:mt-6">
-            This calculator is an online tool that helps you determine your SIP
-            monthly investment amount and the investment time period. You can
-            also estimate how much you can expect to earn by investing a
-            specific amount over a chosen period.
+            Use this calculator to know how much you need to save and invest
+            monthly to reach abundance phase.
           </p>
         </div>
+        {/* <div className="flex flex-row items-center justify-between rounded-lg border mb-3 p-3 bg-white">
+          <p className="text-sm">
+            You&apos;ve set the inflation rate to {inflation}% in your settings.
+            To disable it, you can do so here.
+          </p>
+          <Switch
+            id="inflation-mode"
+            checked={inflationToggle}
+            onCheckedChange={setInflationToggle}
+          />
+        </div> */}
         <div className="relative w-full rounded-lg border mb-3">
           <div className="rounded-xl bg-white transition-all dark:bg-gray-950 p-4 sm:p-6">
             <div className="lg:justify-between lg:items-end lg:flex">
@@ -223,28 +268,41 @@ export default function AccumulationPhase() {
                     from={0}
                     to={computedData?.totalWealth}
                   />
-                  <p className="text-sm text-gray-500">Projected wealth</p>
+                  <p className="text-sm text-gray-500 leading-6">
+                    Projected Wealth{" "}
+                    <span className="text-xs text-gray-500">
+                      (by age {age + computedData?.years})
+                    </span>
+                  </p>
                 </div>
               </div>
               <ul className="lg:grid-cols-2 mt-6 lg:mt-0 gap-[1px] grid-cols-1 grid bg-gray-200">
                 <li className="lg:text-right lg:py-0 py-3 px-0 lg:px-4 bg-white">
                   <p className="font-semibold text-gray-900 text-sm">
-                    {formatNumber(computedData?.totalWealth)}
+                    <SummaryNumber
+                      className="font-semibold text-gray-900 text-sm"
+                      from={0}
+                      to={computedData?.totalWealth}
+                    />
                   </p>
                   <div className="space-x-2 flex items-center lg:justify-end">
                     <span className="bg-[#e76e50] w-3 h-3 rounded flex-shrink-0"></span>
-                    <p className="text-sm text-gray-500">Accumulation phase</p>
+                    <p className="text-sm text-gray-500">Accumulation Phase</p>
                   </div>
                 </li>
                 <li className="lg:text-right lg:py-0 py-3 px-0 lg:px-4 bg-white">
                   <p className="font-semibold text-gray-900 text-sm">
-                    {formatNumber(
-                      targetExpenseToSave - computedData?.totalWealth
-                    )}
+                    <SummaryNumber
+                      className="font-semibold text-gray-900 text-sm"
+                      from={0}
+                      to={targetExpenseToSave - computedData?.totalWealth}
+                    />
                   </p>
                   <div className="space-x-2 flex items-center lg:justify-end">
                     <span className="bg-[#60a8fb] w-3 h-3 rounded flex-shrink-0"></span>
-                    <p className="text-sm text-gray-500">Target wealth</p>
+                    <p className="text-sm text-gray-500">
+                      Abundance Phase Target
+                    </p>
                   </div>
                 </li>
               </ul>
@@ -376,21 +434,43 @@ export default function AccumulationPhase() {
             </div>
             <ul className="ml-6 list-disc space-y-2 leading-7 [&:not(:first-child)]:mt-6">
               <li>
-                <span className="font-medium">Savings Progress</span> - At age{" "}
+                <span className="font-medium">Savings Progress</span> - You will
+                complete this phase in {computedData?.years} years with a{" "}
+                {formatNumber(monthlyInvestment)} SIP investment. By age{" "}
                 {age + computedData?.years}, you will have{" "}
                 <span className="text-emerald-700 font-medium">
-                  {formatNumber(computedData?.totalWealth)} (11.5%)
+                  {formatNumber(computedData?.totalWealth)} (
+                  {(
+                    (computedData?.totalWealth / targetExpenseToSave) *
+                    100
+                  ).toFixed(1)}
+                  %)
                 </span>{" "}
-                of your target wealth {formatNumber(targetExpenseToSave)}.
+                of your target abundance phase goal of{" "}
+                {formatNumber(targetExpenseToSave)}, which is 50 times your
+                annual expenses.
               </li>
+              {inflationToggle && (
+                <li>
+                  <span className="font-medium">Inflation</span> - With an
+                  inflation rate of {inflation}%, the value of your money
+                  decreases over time by{" "}
+                  {formatNumber(
+                    computedData?.totalWealth -
+                      computedData?.totalWealthWithoutInflation
+                  )}
+                  .
+                </li>
+              )}
               <li>
                 <span className="font-medium ">Investment Growth</span> -{" "}
+                Potential capital gains of
                 <span className="text-emerald-700 font-medium">
                   {" "}
                   {formatNumber(computedData?.totalReturn)} (
                   {computedData?.formattedPercentageReturn}%)
                 </span>{" "}
-                potential capital gains from your initial investment of{" "}
+                from your initial investment of{" "}
                 {formatNumber(computedData?.totalInvestedAmount)}.
               </li>
               <li>
@@ -439,17 +519,18 @@ export default function AccumulationPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           In this phase, it&apos;s advisable to save up to 75% of your earnings,
           or at the very least, aim for 50%. A crucial aspect to master during
-          this time is understanding the difference between &quot;Needs&quot; and
-          &quot;Wants.&quot; This is not the time to fulfill desires; rather,
-          it&apos;s the time to focus on essential needs and defer wants to
-          later phases.
+          this time is understanding the difference between &quot;Needs&quot;
+          and &quot;Wants.&quot; This is not the time to fulfill desires;
+          rather, it&apos;s the time to focus on essential needs and defer wants
+          to later phases.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           For instance, if you need a vehicle to commute to work, purchasing a
-          reasonably priced bike for ₹50,000 or less addresses a &quot;Need.&quot;
-          Conversely, opting for an expensive Bullet Bike for ₹2 lakhs caters to
-          a &quot;Desire.&quot; It&apos;s better to avoid such desires during
-          this phase as they can significantly impact your savings.
+          reasonably priced bike for ₹50,000 or less addresses a
+          &quot;Need.&quot; Conversely, opting for an expensive Bullet Bike for
+          ₹2 lakhs caters to a &quot;Desire.&quot; It&apos;s better to avoid
+          such desires during this phase as they can significantly impact your
+          savings.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           Many people might say, &quot;The main reason I got a job was to buy a
@@ -470,9 +551,10 @@ export default function AccumulationPhase() {
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           For example, instead of buying the latest iPhone, consider a more
-          affordable Motorola phone with similar features. Moreover, there&apos;s
-          no need to upgrade your phone annually; upgrading every three years
-          should suffice. Buy based on your needs, not on the latest features.
+          affordable Motorola phone with similar features. Moreover,
+          there&apos;s no need to upgrade your phone annually; upgrading every
+          three years should suffice. Buy based on your needs, not on the latest
+          features.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
           Housing and Rent: A Pragmatic Approach
@@ -481,17 +563,18 @@ export default function AccumulationPhase() {
           Avoid buying a home during this phase, as it can hinder your financial
           growth. Many will argue that paying rent is a waste of money. However,
           paying rent is often cheaper than paying interest on a home loan,
-          especially in India. We&apos;ll delve deeper into this topic in a future
-          episode.
+          especially in India. We&apos;ll delve deeper into this topic in a
+          future episode.
         </p>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           Living a simple, non-materialistic life with a focus on savings is the
-          key during the Accumulation Phase. This doesn&apos;t mean living like a
-          miser, but rather living within your means. By the end of this phase,
-          you should aim to have saved and invested five times your annual
-          expenses. If you&apos;re saving 50% of your income, reaching this goal
-          will be quicker than you might think possibly within just five years.
-          If you manage to save 75%, you can complete this phase even faster.
+          key during the Accumulation Phase. This doesn&apos;t mean living like
+          a miser, but rather living within your means. By the end of this
+          phase, you should aim to have saved and invested five times your
+          annual expenses. If you&apos;re saving 50% of your income, reaching
+          this goal will be quicker than you might think possibly within just
+          five years. If you manage to save 75%, you can complete this phase
+          even faster.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
           What if you&apos;re starting late?
@@ -499,11 +582,11 @@ export default function AccumulationPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           Some of you might be thinking, &quot;This sounds great, but I&apos;m
           already close to 40. I can&apos;t save 50% to 75% of my income.&quot;
-          While it&apos;s true that you can&apos;t undo past financial decisions,
-          you can still maximize your savings rate and invest as much as possible.
-          Additionally, it&apos;s crucial to teach your children about the
-          benefits of early accumulation. While it&apos;s up to them to follow
-          through, they should at least be aware of the option.
+          While it&apos;s true that you can&apos;t undo past financial
+          decisions, you can still maximize your savings rate and invest as much
+          as possible. Additionally, it&apos;s crucial to teach your children
+          about the benefits of early accumulation. While it&apos;s up to them
+          to follow through, they should at least be aware of the option.
         </p>
         <h2 className="font-heading mt-12 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight first:mt-0">
           Investment Strategy: Taking Calculated Risks
@@ -526,8 +609,9 @@ export default function AccumulationPhase() {
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           By the end of the Accumulation Phase, your goal should be to have
           saved and invested five times your annual expenses. This investment is
-          your nest egg, the foundation of your wealth-building journey. It&apos;s
-          crucial not to touch this investment; let it grow and work for you.
+          your nest egg, the foundation of your wealth-building journey.
+          It&apos;s crucial not to touch this investment; let it grow and work
+          for you.
         </p>
       </MaxWidthWrapper>
     </>
