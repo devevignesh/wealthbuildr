@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect } from "react";
 import { MaxWidthWrapper } from "@/components/max-width-wrapper";
 import {
   IndianRupee,
@@ -9,8 +9,7 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
-import { getYear, addYears } from "date-fns";
-import { BarChart, DonutChart } from "@tremor/react";
+import { DonutChart, AreaChart } from "@tremor/react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -23,7 +22,7 @@ interface WealthDataPoint {
   year: number;
   wealth: number;
   wealthWithoutInflation: number;
-  calendarYear: number;
+  totalInvested: number;
 }
 interface SavingsRateResult {
   savingsRate: number;
@@ -38,17 +37,19 @@ function calculateInvestmentYearsWithWealthData(
   inflation: number
 ): {
   years: number;
+  months: number;
   wealthData: WealthDataPoint[];
   totalWealth: number;
   totalWealthWithoutInflation: number;
+  totalInvested: number;
 } {
   const wealthData: WealthDataPoint[] = [];
   let totalWealth = 0;
   let totalWealthWithoutInflation = 0;
+  let totalInvested = 0;
   let years = 0;
   const monthlyRate = annualReturnRate / 12 / 100;
   let targetAmount = expense * goal;
-  const startYear = getYear(new Date());
   let adjustedMonthlyInvestment = monthlyInvestment;
 
   while (totalWealth < targetAmount) {
@@ -57,10 +58,11 @@ function calculateInvestmentYearsWithWealthData(
         (totalWealth + adjustedMonthlyInvestment) * (1 + monthlyRate);
       totalWealthWithoutInflation =
         (totalWealthWithoutInflation + monthlyInvestment) * (1 + monthlyRate);
+      totalInvested += adjustedMonthlyInvestment;
     }
 
     years++;
-    // Adjust target amount and monthly investment for inflation
+    // Adjust target amount and annual investment for inflation
     targetAmount *= 1 + inflation / 100;
     adjustedMonthlyInvestment *= 1 + inflation / 100;
 
@@ -68,20 +70,27 @@ function calculateInvestmentYearsWithWealthData(
     const roundedWealthWithoutInflation = Math.round(
       totalWealthWithoutInflation
     );
-    const calendarYear = addYears(new Date(startYear, 0), years).getFullYear();
+    const roundedTotalInvested = Math.round(totalInvested);
     wealthData.push({
       year: years,
       wealth: roundedWealth,
       wealthWithoutInflation: roundedWealthWithoutInflation,
-      calendarYear
+      totalInvested: roundedTotalInvested
     });
   }
 
+  // Calculate months for reference (not used in calculations)
+  const remainingMonths = Math.round(
+    (totalWealth - targetAmount) / (totalWealth / 12)
+  );
+
   return {
-    years: years,
-    wealthData: wealthData,
+    years,
+    months: remainingMonths,
+    wealthData,
     totalWealth: Math.round(totalWealth),
-    totalWealthWithoutInflation: Math.round(totalWealthWithoutInflation)
+    totalWealthWithoutInflation: Math.round(totalWealthWithoutInflation),
+    totalInvested: Math.round(totalInvested)
   };
 }
 
@@ -92,20 +101,30 @@ type CustomTooltipTypeBar = {
 };
 
 const customTooltip = (props: CustomTooltipTypeBar) => {
-  const { payload, active, label } = props;
+  const { payload, active } = props;
   if (!active || !payload) return null;
+  const data = payload[0].payload;
+  const years = Math.floor(data.year);
+  const months = Math.round((data.year - years) * 10);
   return (
     <div className="border shadow rounded-md border-tremor-border bg-tremor-background p-2 text-tremor-default shadow-tremor-dropdown">
-      {payload.map((category: any, idx: any) => (
-        <div key={idx} className="flex flex-1 space-x-2.5">
-          <div className="flex w-1 flex-col bg-[#6277cd] rounded" />
-          <div className="space-y-1">
-            <p className=" text-gray-700 text-sm">
-              Projected wealth in year {label}: {formatNumber(category.value)}
-            </p>
-          </div>
+      <div className="flex flex-col space-y-2">
+        <div className="flex items-center space-x-2">
+          <div className="w-1 h-3 rounded bg-[#3b82f6]" />
+          <p className="text-gray-700 text-sm">
+            Projected wealth: {formatNumber(data.wealth)}
+          </p>
         </div>
-      ))}
+        <div className="flex items-center space-x-2">
+          <div className="w-1 h-3 rounded bg-[#06b6d4]" />
+          <p className="text-gray-700 text-sm">
+            Total invested: {formatNumber(data.invested)}
+          </p>
+        </div>
+        <p className="text-gray-500 text-xs">
+          After {years} years{months > 0 ? ` and ${months} months` : ""}
+        </p>
+      </div>
     </div>
   );
 };
@@ -153,35 +172,40 @@ export default function AccumulationPhase() {
   const { inflationToggle, setInflationToggle } = useStore();
   const setAccumulationPhase = useStore(state => state.setAccumulationPhase);
   const computedData = useMemo(() => {
-    const { years, wealthData, totalWealth, totalWealthWithoutInflation } =
-      calculateInvestmentYearsWithWealthData(
-        expense,
-        monthlyInvestment,
-        interest,
-        goal,
-        inflationToggle ? inflation : 0
-      );
+    const {
+      years,
+      wealthData,
+      totalWealth,
+      totalWealthWithoutInflation,
+      months,
+      totalInvested
+    } = calculateInvestmentYearsWithWealthData(
+      expense,
+      monthlyInvestment,
+      interest,
+      goal,
+      inflationToggle ? inflation : 0
+    );
 
-    const monthlyInvestedAmount = monthlyInvestment * 12;
-    const totalInvestedAmount = monthlyInvestedAmount * years;
-    const totalReturn = totalWealth - totalInvestedAmount;
-    const percentageReturn = (totalReturn / totalInvestedAmount) * 100;
+    const totalReturn = totalWealth - totalInvested;
+    const percentageReturn = (totalReturn / totalInvested) * 100;
     const formattedPercentageReturn = percentageReturn.toFixed(2);
 
     const chartData = wealthData.map(dataPoint => ({
       year: dataPoint.year,
       wealth: dataPoint.wealth,
-      calendarYear: dataPoint.calendarYear
+      invested: dataPoint.totalInvested
     }));
 
     const computedResults = {
       years,
+      months,
       chartData,
       totalWealth,
-      totalInvestedAmount,
+      totalInvested,
       totalReturn,
       formattedPercentageReturn,
-      totalWealthWithoutInflation
+      totalWealthWithoutInflation,
     };
 
     return computedResults;
@@ -233,7 +257,7 @@ export default function AccumulationPhase() {
           </p>
           <p className="leading-7 [&:not(:first-child)]:mt-6">
             Use this calculator to know how much you need to save and invest
-            monthly to reach abundance phase.
+            monthly to reach abundant phase.
           </p>
         </div>
         {/* <div className="flex flex-row items-center justify-between rounded-lg border mb-3 p-3 bg-white">
@@ -301,7 +325,7 @@ export default function AccumulationPhase() {
                   <div className="space-x-2 flex items-center lg:justify-end">
                     <span className="bg-[#60a8fb] w-3 h-3 rounded flex-shrink-0"></span>
                     <p className="text-sm text-gray-500">
-                      Abundance Phase Target
+                      Abundant Phase Target
                     </p>
                   </div>
                 </li>
@@ -413,16 +437,16 @@ export default function AccumulationPhase() {
               </div>
             </div>
             <div className="lg:col-span-2 grid auto-rows-max items-start gap-4 lg:gap-8 mt-10 lg:mt-0">
-              <BarChart
+              <AreaChart
                 data={computedData?.chartData || []}
                 index="year"
-                categories={["wealth"]}
-                colors={["#6277cd"]}
+                categories={["wealth", "invested"]}
+                colors={["#3b82f6", "#06b6d4"]}
                 valueFormatter={n => formatNumber(n, "compact")}
                 showLegend={false}
                 customTooltip={customTooltip}
                 xAxisLabel="Saving period (years)"
-                // yAxisLabel="Wealth"
+                yAxisLabel=" "
                 showAnimation={true}
               />
             </div>
@@ -435,8 +459,8 @@ export default function AccumulationPhase() {
             <ul className="ml-6 list-disc space-y-2 leading-7 [&:not(:first-child)]:mt-6">
               <li>
                 <span className="font-medium">Savings Progress</span> - You will
-                complete this phase in {computedData?.years} years with a{" "}
-                {formatNumber(monthlyInvestment)} SIP investment. By age{" "}
+                complete this phase in {computedData?.years} years with a monthly{" "}
+                {formatNumber(monthlyInvestment)} SIP. By age{" "}
                 {age + computedData?.years}, you will have{" "}
                 <span className="text-emerald-700 font-medium">
                   {formatNumber(computedData?.totalWealth)} (
@@ -446,7 +470,7 @@ export default function AccumulationPhase() {
                   ).toFixed(1)}
                   %)
                 </span>{" "}
-                of your target abundance phase goal of{" "}
+                of your target abundant phase goal of{" "}
                 {formatNumber(targetExpenseToSave)}, which is 50 times your
                 annual expenses.
               </li>
@@ -471,7 +495,7 @@ export default function AccumulationPhase() {
                   {computedData?.formattedPercentageReturn}%)
                 </span>{" "}
                 from your initial investment of{" "}
-                {formatNumber(computedData?.totalInvestedAmount)}.
+                {formatNumber(computedData?.totalInvested)}.
               </li>
               <li>
                 <span className="font-medium ">Savings Rate</span> - {feedback}

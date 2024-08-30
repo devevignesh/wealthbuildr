@@ -6,6 +6,11 @@ interface ChartDataPoint {
   wealth: number;
 }
 
+interface AbundantDataPoint {
+  year: number;
+  wealth: number;
+}
+
 interface AccumulationPhase {
   monthlyInvestment: number;
   interest: number;
@@ -26,7 +31,7 @@ interface GrowthPhase {
 
 interface AbundantPhase {
   wealth: number;
-  data: ChartDataPoint[];
+  data: AbundantDataPoint[];
   combinedData: ChartDataPoint[];
   abundantPhaseAge: number;
   combinedNetWorth: number;

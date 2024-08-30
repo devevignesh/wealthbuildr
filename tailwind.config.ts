@@ -172,7 +172,7 @@ const config = {
       `ui-selected:border-${customColor}`,
       `ui-selected:text-${customColor}`
     ]),
-    ...["[#289d90]"].flatMap(customColor => [
+    ...["[#2a9d90]"].flatMap(customColor => [
       `bg-${customColor}`,
       `border-${customColor}`,
       `hover:bg-${customColor}`,
@@ -187,6 +187,34 @@ const config = {
       `ui-selected:text-${customColor}`
     ]),
     ...["[#60a8fb]"].flatMap(customColor => [
+      `bg-${customColor}`,
+      `border-${customColor}`,
+      `hover:bg-${customColor}`,
+      `hover:border-${customColor}`,
+      `hover:text-${customColor}`,
+      `fill-${customColor}`,
+      `ring-${customColor}`,
+      `stroke-${customColor}`,
+      `text-${customColor}`,
+      `ui-selected:bg-${customColor}`,
+      `ui-selected:border-${customColor}`,
+      `ui-selected:text-${customColor}`
+    ]),
+    ...["[#3b82f6]"].flatMap(customColor => [
+      `bg-${customColor}`,
+      `border-${customColor}`,
+      `hover:bg-${customColor}`,
+      `hover:border-${customColor}`,
+      `hover:text-${customColor}`,
+      `fill-${customColor}`,
+      `ring-${customColor}`,
+      `stroke-${customColor}`,
+      `text-${customColor}`,
+      `ui-selected:bg-${customColor}`,
+      `ui-selected:border-${customColor}`,
+      `ui-selected:text-${customColor}`
+    ]),
+    ...["[#06b6d4]"].flatMap(customColor => [
       `bg-${customColor}`,
       `border-${customColor}`,
       `hover:bg-${customColor}`,
