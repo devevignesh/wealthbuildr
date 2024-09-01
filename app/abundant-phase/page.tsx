@@ -299,6 +299,7 @@ export default function AbundantPhase() {
                 className="h-48"
                 customTooltip={customTooltipLineChart}
                 showAnimation={true}
+                xAxisLabel="Growth Period (years)"
               />
             </div>
           </div>

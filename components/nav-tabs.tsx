@@ -12,7 +12,7 @@ export default function NavTabs() {
         { name: "Growth", href: "/growth-phase" },
         { name: "Independent", href: "/independent-phase" },
         { name: "Abundant", href: "/abundant-phase" },
-        { name: "Settings", href: "/settings/general" },
+        { name: "Settings", href: "/settings" },
     ];
 
     return (

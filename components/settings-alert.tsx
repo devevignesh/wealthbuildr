@@ -19,7 +19,7 @@ export default function SettingsAlert() {
           please update the{" "}
           <Link
             className="underline underline-offset-4"
-            href="/settings/general"
+            href="/settings"
           >
             settings
           </Link>{" "}

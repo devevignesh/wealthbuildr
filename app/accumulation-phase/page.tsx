@@ -284,11 +284,11 @@ export default function AccumulationPhase() {
                   showTooltip={false}
                   showLabel={false}
                   colors={["#e76e50", "#60a8fb"]}
-                  showAnimation={true}
+                  showAnimation
                 />
                 <div>
                   <SummaryNumber
-                    className="font-semibold text-lg transition-opacity flex items-center gap-2 leading-none"
+                    className="font-semibold text-lg transition-opacity flex items-center gap-2"
                     from={0}
                     to={computedData?.totalWealth}
                   />

@@ -335,7 +335,7 @@ export default function GrowthPhase() {
                 />
                 <div>
                   <SummaryNumber
-                    className="font-semibold text-lg transition-opacity flex items-center gap-2 leading-none"
+                    className="font-semibold text-lg transition-opacity flex items-center gap-2"
                     from={0}
                     to={computedData?.totalWealth}
                   />
