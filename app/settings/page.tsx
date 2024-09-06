@@ -189,7 +189,7 @@ export default function Settings() {
                 <FormItem>
                   <div className="flex items-center justify-between w-full max-w-md">
                     <FormLabel className="font-medium text-base">
-                      Inflation (coming soon)
+                      Inflation
                     </FormLabel>
                     <FormControl>
                       <div className="flex items-center">
