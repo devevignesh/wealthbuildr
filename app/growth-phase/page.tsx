@@ -18,7 +18,7 @@ import { SummaryNumber } from "@/components/summary-number";
 import SettingsAlert from "@/components/settings-alert";
 import { Switch } from "@/components/ui/switch";
 import { formatNumber, formatNumberForCharts } from "@/lib/numbers";
-import { useStore } from "@/lib/store";
+import { useWealthStore } from '@/providers/wealth-store-provider'
 interface WealthDataPoint {
   year: number;
   wealth: number;
@@ -57,8 +57,10 @@ function calculateInvestmentYearsWithWealthData(
 
   while (totalWealth < targetAmount) {
     for (let month = 0; month < 12; month++) {
-      totalWealth = (totalWealth + adjustedMonthlyInvestment) * (1 + monthlyRate);
-      totalWealthWithoutInflation = (totalWealthWithoutInflation + monthlyInvestment) * (1 + monthlyRate);
+      totalWealth =
+        (totalWealth + adjustedMonthlyInvestment) * (1 + monthlyRate);
+      totalWealthWithoutInflation =
+        (totalWealthWithoutInflation + monthlyInvestment) * (1 + monthlyRate);
       totalInvested += adjustedMonthlyInvestment;
     }
 
@@ -68,7 +70,9 @@ function calculateInvestmentYearsWithWealthData(
     adjustedMonthlyInvestment *= 1 + inflation / 100;
 
     const roundedWealth = Math.round(totalWealth);
-    const roundedWealthWithoutInflation = Math.round(totalWealthWithoutInflation);
+    const roundedWealthWithoutInflation = Math.round(
+      totalWealthWithoutInflation
+    );
     const roundedTotalInvested = Math.round(totalInvested);
     wealthData.push({
       year: years,
@@ -79,7 +83,9 @@ function calculateInvestmentYearsWithWealthData(
   }
 
   // Calculate months for reference (not used in calculations)
-  const remainingMonths = Math.round((totalWealth - targetAmount) / (totalWealth / 12));
+  const remainingMonths = Math.round(
+    (totalWealth - targetAmount) / (totalWealth / 12)
+  );
 
   return {
     years,
@@ -178,18 +184,19 @@ const customTooltip = (props: CustomTooltipTypeBar) => {
 };
 
 export default function GrowthPhase() {
-  const { inflationToggle, setInflationToggle } = useStore();
-  const { age, expense, targetExpenseToSave, salary, inflation } = useStore(
+  const inflationToggle = useWealthStore(state => state.inflationToggle);
+  const setInflationToggle = useWealthStore(state => state.setInflationToggle);
+  const { age, expense, targetExpenseToSave, salary, inflation } = useWealthStore(
     state => state.settings
   );
-  const { monthlyInvestment, interest, goal, wealth } = useStore(
+  const { monthlyInvestment, interest, goal, wealth } = useWealthStore(
     state => state.growthPhase
   );
   const {
     wealth: totalAccumulatedWealth,
     savingPeriod: accumulationSavingPeriod
-  } = useStore(state => state.accumulationPhase);
-  const setGrowthPhase = useStore(state => state.setGrowthPhase);
+  } = useWealthStore(state => state.accumulationPhase);
+  const setGrowthPhase = useWealthStore(state => state.setGrowthPhase);
   const monthlySalary = salary / 12; // salary is annual
   const { feedback } = calculateSavingsRate(monthlySalary, monthlyInvestment);
 
@@ -242,7 +249,7 @@ export default function GrowthPhase() {
       totalWealthWithoutInflation,
       totalInvested,
       totalReturn,
-      formattedPercentageReturn,
+      formattedPercentageReturn
     };
   }, [
     expense,
@@ -277,7 +284,7 @@ export default function GrowthPhase() {
       savingPeriod: computedData.years,
       data: computedData.data
     });
-  }, [computedData, setGrowthPhase, totalAccumulatedWealth]);
+  }, [computedData, setGrowthPhase, totalAccumulatedWealth, inflationToggle]);
 
   return (
     <>
@@ -307,7 +314,7 @@ export default function GrowthPhase() {
             </div>
           </div>
         </div>
-        {/* <div className="flex flex-row items-center justify-between rounded-lg border mb-3 p-3 bg-white">
+        <div className="flex flex-row items-center justify-between rounded-lg border mb-3 p-3 bg-white">
           <p className="text-sm">
             You&apos;ve set the inflation rate to {inflation}% in your settings.
             To disable it, you can do so here.
@@ -317,7 +324,7 @@ export default function GrowthPhase() {
             checked={inflationToggle}
             onCheckedChange={setInflationToggle}
           />
-        </div> */}
+        </div>
         <div className="relative w-full rounded-lg border mb-3">
           <div className="rounded-xl bg-white transition-all dark:bg-gray-950 p-4 sm:p-6">
             <div className="lg:justify-between lg:items-end lg:flex">
@@ -512,8 +519,8 @@ export default function GrowthPhase() {
             <ul className="ml-6 list-disc space-y-2 leading-7 [&:not(:first-child)]:mt-6">
               <li>
                 <span className="font-medium">Savings Progress</span> - You will
-                complete this phase in {computedData?.years} years with a monthly{" "}
-                {formatNumber(monthlyInvestment)} SIP. By age{" "}
+                complete this phase in {computedData?.years} years with a
+                monthly {formatNumber(monthlyInvestment)} SIP. By age{" "}
                 {growthPhaseCompletionAge}, you will have{" "}
                 <span className="text-emerald-700 font-medium">
                   {formatNumber(computedData?.totalWealth)} (

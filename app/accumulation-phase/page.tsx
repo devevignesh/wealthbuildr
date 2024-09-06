@@ -17,7 +17,8 @@ import { SummaryNumber } from "@/components/summary-number";
 import SettingsAlert from "@/components/settings-alert";
 import { Switch } from "@/components/ui/switch";
 import { formatNumber } from "@/lib/numbers";
-import { useStore } from "@/lib/store";
+import { useWealthStore } from "@/providers/wealth-store-provider";
+
 interface WealthDataPoint {
   year: number;
   wealth: number;
@@ -163,14 +164,16 @@ const calculateSavingsRate = (
 };
 
 export default function AccumulationPhase() {
-  const { monthlyInvestment, interest, goal, wealth } = useStore(
+  const { monthlyInvestment, interest, goal, wealth } = useWealthStore(
     state => state.accumulationPhase
   );
-  const { salary, age, expense, targetExpenseToSave, inflation } = useStore(
-    state => state.settings
+  const { salary, age, expense, targetExpenseToSave, inflation } =
+    useWealthStore(state => state.settings);
+  const inflationToggle = useWealthStore(state => state.inflationToggle);
+  const setInflationToggle = useWealthStore(state => state.setInflationToggle);
+  const setAccumulationPhase = useWealthStore(
+    state => state.setAccumulationPhase
   );
-  const { inflationToggle, setInflationToggle } = useStore();
-  const setAccumulationPhase = useStore(state => state.setAccumulationPhase);
   const computedData = useMemo(() => {
     const {
       years,
@@ -205,7 +208,7 @@ export default function AccumulationPhase() {
       totalInvested,
       totalReturn,
       formattedPercentageReturn,
-      totalWealthWithoutInflation,
+      totalWealthWithoutInflation
     };
 
     return computedResults;
@@ -238,7 +241,7 @@ export default function AccumulationPhase() {
       savingPeriod: computedData.years,
       data: computedData.chartData
     });
-  }, [computedData, setAccumulationPhase]);
+  }, [computedData, setAccumulationPhase, inflationToggle]);
 
   return (
     <>
@@ -260,7 +263,7 @@ export default function AccumulationPhase() {
             monthly to reach abundant phase.
           </p>
         </div>
-        {/* <div className="flex flex-row items-center justify-between rounded-lg border mb-3 p-3 bg-white">
+        <div className="flex flex-row items-center justify-between rounded-lg border mb-3 p-3 bg-white">
           <p className="text-sm">
             You&apos;ve set the inflation rate to {inflation}% in your settings.
             To disable it, you can do so here.
@@ -270,7 +273,7 @@ export default function AccumulationPhase() {
             checked={inflationToggle}
             onCheckedChange={setInflationToggle}
           />
-        </div> */}
+        </div>
         <div className="relative w-full rounded-lg border mb-3">
           <div className="rounded-xl bg-white transition-all dark:bg-gray-950 p-4 sm:p-6">
             <div className="lg:justify-between lg:items-end lg:flex">
@@ -459,8 +462,8 @@ export default function AccumulationPhase() {
             <ul className="ml-6 list-disc space-y-2 leading-7 [&:not(:first-child)]:mt-6">
               <li>
                 <span className="font-medium">Savings Progress</span> - You will
-                complete this phase in {computedData?.years} years with a monthly{" "}
-                {formatNumber(monthlyInvestment)} SIP. By age{" "}
+                complete this phase in {computedData?.years} years with a
+                monthly {formatNumber(monthlyInvestment)} SIP. By age{" "}
                 {age + computedData?.years}, you will have{" "}
                 <span className="text-emerald-700 font-medium">
                   {formatNumber(computedData?.totalWealth)} (

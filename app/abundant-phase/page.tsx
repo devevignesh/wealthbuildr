@@ -4,7 +4,7 @@ import { Sparkles } from "lucide-react";
 import { AreaChart, BarChart } from "@tremor/react";
 import { MaxWidthWrapper } from "@/components/max-width-wrapper";
 import SettingsAlert from "@/components/settings-alert";
-import { useStore } from "@/lib/store";
+import { useWealthStore } from "@/providers/wealth-store-provider";
 import {
   Card,
   CardContent,
@@ -154,11 +154,13 @@ function calculateYearsToTargetNetWorth(
 }
 
 export default function AbundantPhase() {
-  const { combinedData, combinedNetWorth, abundantPhaseAge } = useStore(
+  const { combinedData, combinedNetWorth, abundantPhaseAge } = useWealthStore(
     state => state.abundantPhase
   );
-  const targetNetWorth = useStore(state => state.settings.targetExpenseToSave);
-  const setAbundantPhase = useStore(state => state.setAbundantPhase);
+  const targetNetWorth = useWealthStore(
+    state => state.settings.targetExpenseToSave
+  );
+  const setAbundantPhase = useWealthStore(state => state.setAbundantPhase);
   const annualGrowthRate = 12;
   const computedData = useMemo(() => {
     const { years, wealthData, finalWealth, months } =

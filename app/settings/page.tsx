@@ -14,12 +14,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { useStore } from "@/lib/store";
+import { useWealthStore } from '@/providers/wealth-store-provider'
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Settings() {
   const { toast } = useToast();
-  const { inflation, salary, age, expense } = useStore(state => state.settings);
+  const { inflation, salary, age, expense } = useWealthStore(state => state.settings);
   const form = useForm({
     defaultValues: {
       age: age,
@@ -28,7 +28,7 @@ export default function Settings() {
       expense: expense
     }
   });
-  const setSettings = useStore(state => state.setSettings);
+  const setSettings = useWealthStore(state => state.setSettings);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function onSubmit(values: {
@@ -197,9 +197,8 @@ export default function Settings() {
                           type="number"
                           className="text-right text-lg w-24 border-0 rounded-none border-b-2 appearance-none p-0"
                           {...field}
-                          disabled
                         />
-                      {/* <Percent size={18} /> */}
+                        <Percent size={18} />
                       </div>
                     </FormControl>
                   </div>
@@ -209,7 +208,6 @@ export default function Settings() {
                       onValueChange={vals => {
                         field.onChange(vals[0]);
                       }}
-                      disabled
                       min={1}
                       max={15}
                       step={1}

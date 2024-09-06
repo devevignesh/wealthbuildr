@@ -3,10 +3,10 @@ import { Info } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { MaxWidthWrapper } from "@/components/max-width-wrapper";
-import { useStore } from "@/lib/store";
+import { useWealthStore } from '@/providers/wealth-store-provider'
 
 export default function SettingsAlert() {
-  const settings = useStore(state => state.settings);
+  const settings = useWealthStore(state => state.settings);
 
   if (!settings.showAlert) return null;
 

@@ -4,6 +4,7 @@ import Script from "next/script";
 import Link from "next/link";
 import NavTabs from "@/components/nav-tabs";
 import { Toaster } from "@/components/ui/toaster";
+import { WealthStoreProvider } from '@/providers/wealth-store-provider'
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -64,7 +65,9 @@ export default function RootLayout({
                 <NavTabs />
               </div>
             </div>
-            {children}
+            <WealthStoreProvider>
+              {children}
+            </WealthStoreProvider>
           </div>
         </main>
         <Toaster />
