@@ -1,193 +1,25 @@
 "use client";
 import { useMemo, useEffect, useState } from "react";
 import { MaxWidthWrapper } from "@/components/max-width-wrapper";
-import {
-  IndianRupee,
-  Percent,
-  X,
-  Sparkles,
-  TrendingUp,
-  TrendingDown,
-  Minus
-} from "lucide-react";
+import { IndianRupee, Percent, X, Sparkles } from "lucide-react";
 import { AreaChart, DonutChart } from "@tremor/react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { SummaryNumber } from "@/components/summary-number";
 import SettingsAlert from "@/components/settings-alert";
-import { Switch } from "@/components/ui/switch";
 import { formatNumber, formatNumberForCharts } from "@/lib/numbers";
-import { useWealthStore } from '@/providers/wealth-store-provider'
-interface WealthDataPoint {
-  year: number;
-  wealth: number;
-  wealthWithoutInflation: number;
-  totalInvested: number;
-}
-
-interface SavingsRateResult {
-  savingsRate: number;
-  feedback: React.ReactNode;
-}
-
-function calculateInvestmentYearsWithWealthData(
-  expense: number,
-  monthlyInvestment: number,
-  annualReturnRate: number,
-  goal: number,
-  totalAccumulatedWealth: number,
-  inflation: number
-): {
-  years: number;
-  months: number;
-  wealthData: WealthDataPoint[];
-  totalWealth: number;
-  totalWealthWithoutInflation: number;
-  totalInvested: number;
-} {
-  const wealthData: WealthDataPoint[] = [];
-  let totalWealth = totalAccumulatedWealth;
-  let totalWealthWithoutInflation = totalAccumulatedWealth;
-  let totalInvested = totalAccumulatedWealth;
-  let years = 0;
-  const monthlyRate = annualReturnRate / 12 / 100;
-  let targetAmount = expense * goal;
-  let adjustedMonthlyInvestment = monthlyInvestment;
-
-  while (totalWealth < targetAmount) {
-    for (let month = 0; month < 12; month++) {
-      totalWealth =
-        (totalWealth + adjustedMonthlyInvestment) * (1 + monthlyRate);
-      totalWealthWithoutInflation =
-        (totalWealthWithoutInflation + monthlyInvestment) * (1 + monthlyRate);
-      totalInvested += adjustedMonthlyInvestment;
-    }
-
-    years++;
-    // Adjust target amount and monthly investment for inflation
-    targetAmount *= 1 + inflation / 100;
-    adjustedMonthlyInvestment *= 1 + inflation / 100;
-
-    const roundedWealth = Math.round(totalWealth);
-    const roundedWealthWithoutInflation = Math.round(
-      totalWealthWithoutInflation
-    );
-    const roundedTotalInvested = Math.round(totalInvested);
-    wealthData.push({
-      year: years,
-      wealth: roundedWealth,
-      wealthWithoutInflation: roundedWealthWithoutInflation,
-      totalInvested: roundedTotalInvested
-    });
-  }
-
-  // Calculate months for reference (not used in calculations)
-  const remainingMonths = Math.round(
-    (totalWealth - targetAmount) / (totalWealth / 12)
-  );
-
-  return {
-    years,
-    months: remainingMonths,
-    wealthData,
-    totalWealth: Math.round(totalWealth),
-    totalWealthWithoutInflation: Math.round(totalWealthWithoutInflation),
-    totalInvested: Math.round(totalInvested)
-  };
-}
-
-const calculateSavingsRate = (
-  monthlySalary: number,
-  monthlyInvestment: number
-): SavingsRateResult => {
-  const savingsRate =
-    Math.round((monthlyInvestment / monthlySalary) * 10000) / 100;
-  const feedback: React.ReactNode =
-    savingsRate < 20 ? (
-      <>
-        Your monthly investment of {formatNumber(monthlyInvestment)} represents
-        a{" "}
-        <span className="text-red-500 font-medium">
-          {savingsRate}% <TrendingDown className="inline-flex" />
-        </span>{" "}
-        savings rate. This is {Math.round((20 - savingsRate) * 100) / 100}%
-        lower than the recommended 20% for the growth phase.
-      </>
-    ) : (
-      <>
-        Your monthly investment of {formatNumber(monthlyInvestment)} represents
-        a{" "}
-        <span className="text-emerald-700">
-          {savingsRate}%{" "}
-          {savingsRate > 20 && <TrendingUp className="inline-flex" />}
-        </span>{" "}
-        savings rate, within the recommended 20% range for the growth phase.
-      </>
-    );
-
-  return { savingsRate, feedback };
-};
-
-type CustomTooltipTypeBar = {
-  payload: any;
-  active: boolean | undefined;
-  label: any;
-};
-
-const customTooltip = (props: CustomTooltipTypeBar) => {
-  const { payload, active } = props;
-  if (!active || !payload) return null;
-  const data = payload[0].payload;
-  const years = Math.floor(data.year);
-  const months = Math.round((data.year - years) * 10);
-
-  if (years === 0) {
-    return (
-      <div className="border shadow rounded-md border-tremor-border bg-tremor-background p-2 text-tremor-default shadow-tremor-dropdown">
-        <div className="flex flex-col space-y-2">
-          <div className="flex items-center space-x-2">
-            <div className="w-1 h-3 rounded bg-[#06b6d4]" />
-            <p className="text-gray-700 text-sm">
-              Initial Investment: {formatNumber(data.wealth)}
-            </p>
-          </div>
-          <p className="text-gray-500 text-xs">
-            Carried over from Accumulation Phase
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="border shadow rounded-md border-tremor-border bg-tremor-background p-2 text-tremor-default shadow-tremor-dropdown">
-      <div className="flex flex-col space-y-2">
-        <div className="flex items-center space-x-2">
-          <div className="w-1 h-3 rounded bg-[#3b82f6]" />
-          <p className="text-gray-700 text-sm">
-            Projected wealth: {formatNumber(data.wealth)}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-1 h-3 rounded bg-[#06b6d4]" />
-          <p className="text-gray-700 text-sm">
-            Total invested: {formatNumber(data.invested)}
-          </p>
-        </div>
-        <p className="text-gray-500 text-xs">
-          After {years} years{months > 0 ? ` and ${months} months` : ""}
-        </p>
-      </div>
-    </div>
-  );
-};
+import { useWealthStore } from "@/providers/wealth-store-provider";
+import { calculateWealthData } from "@/lib/calculations";
+import { calculateSavingsRate } from "@/components/savings-rate";
+import { customTooltip } from "@/components/chart-tooltip";
 
 export default function GrowthPhase() {
-  const inflationToggle = useWealthStore(state => state.inflationToggle);
-  const setInflationToggle = useWealthStore(state => state.setInflationToggle);
-  const { age, expense, targetExpenseToSave, salary, inflation } = useWealthStore(
+  const { age, expense, salary } = useWealthStore(
     state => state.settings
+  );
+  const targetExpenseToSave = useWealthStore(
+    state => state.targetExpenseToSave
   );
   const { monthlyInvestment, interest, goal, wealth } = useWealthStore(
     state => state.growthPhase
@@ -198,24 +30,21 @@ export default function GrowthPhase() {
   } = useWealthStore(state => state.accumulationPhase);
   const setGrowthPhase = useWealthStore(state => state.setGrowthPhase);
   const monthlySalary = salary / 12; // salary is annual
-  const { feedback } = calculateSavingsRate(monthlySalary, monthlyInvestment);
+  const { feedback } = calculateSavingsRate(
+    monthlySalary,
+    monthlyInvestment,
+    "growth"
+  );
 
   const computedData = useMemo(() => {
-    const {
-      years,
-      wealthData,
-      totalWealth,
-      totalWealthWithoutInflation,
-      months,
-      totalInvested
-    } = calculateInvestmentYearsWithWealthData(
-      expense,
-      monthlyInvestment,
-      interest,
-      goal,
-      totalAccumulatedWealth,
-      inflationToggle ? inflation : 0
-    );
+    const { years, wealthData, totalWealth, months, totalInvested } =
+      calculateWealthData(
+        expense,
+        monthlyInvestment,
+        interest,
+        goal,
+        totalAccumulatedWealth
+      );
 
     const totalReturn = totalWealth - totalInvested;
     const percentageReturn = (totalReturn / totalInvested) * 100;
@@ -246,20 +75,12 @@ export default function GrowthPhase() {
       data,
       chartData,
       totalWealth,
-      totalWealthWithoutInflation,
       totalInvested,
       totalReturn,
       formattedPercentageReturn
     };
-  }, [
-    expense,
-    monthlyInvestment,
-    interest,
-    goal,
-    totalAccumulatedWealth,
-    inflationToggle,
-    inflation
-  ]);
+  }, [expense, monthlyInvestment, interest, goal, totalAccumulatedWealth]);
+
   const growthPhaseCompletionAge =
     age + computedData.years + accumulationSavingPeriod;
 
@@ -284,7 +105,7 @@ export default function GrowthPhase() {
       savingPeriod: computedData.years,
       data: computedData.data
     });
-  }, [computedData, setGrowthPhase, totalAccumulatedWealth, inflationToggle]);
+  }, [computedData, setGrowthPhase, totalAccumulatedWealth]);
 
   return (
     <>
@@ -303,7 +124,7 @@ export default function GrowthPhase() {
             return to a more balanced lifestyle, easing off the extreme
             frugality of the previous phase.
           </p>
-          <div className="relative w-full rounded-lg border px-4 py-3 text-sm text-foreground mt-4 bg-amber-50 border-amber-200">
+          <div className="relative w-full rounded-lg border px-4 py-3 text-sm text-foreground mt-4 bg-blue-50 border-blue-200">
             <div className="text-sm [&_p]:leading-relaxed">
               <p className="leading-7 [&:not(:first-child)]:mt-6">
                 Your Accumulation Phase savings of{" "}
@@ -313,17 +134,6 @@ export default function GrowthPhase() {
               </p>
             </div>
           </div>
-        </div>
-        <div className="flex flex-row items-center justify-between rounded-lg border mb-3 p-3 bg-white">
-          <p className="text-sm">
-            You&apos;ve set the inflation rate to {inflation}% in your settings.
-            To disable it, you can do so here.
-          </p>
-          <Switch
-            id="inflation-mode"
-            checked={inflationToggle}
-            onCheckedChange={setInflationToggle}
-          />
         </div>
         <div className="relative w-full rounded-lg border mb-3">
           <div className="rounded-xl bg-white transition-all dark:bg-gray-950 p-4 sm:p-6">
@@ -460,7 +270,8 @@ export default function GrowthPhase() {
                   />
                   <p className="text-sm text-muted-foreground">
                     This phase recommends that you save and invest a minimum of
-                    25 times your annual expenses.
+                    25 times your annual expenses, which is{" "}
+                    {formatNumber(expense * goal, "compact")}.
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -504,7 +315,9 @@ export default function GrowthPhase() {
                 colors={["#3b82f6", "#06b6d4"]}
                 valueFormatter={n => formatNumberForCharts(n)}
                 showLegend={false}
-                customTooltip={customTooltip}
+                customTooltip={props =>
+                  customTooltip({ ...props, phase: "growth" })
+                }
                 xAxisLabel="Saving period (years)"
                 yAxisLabel=" "
                 showAnimation={true}
@@ -534,18 +347,6 @@ export default function GrowthPhase() {
                 {formatNumber(targetExpenseToSave)}, which is 50 times your
                 annual expenses.
               </li>
-              {inflationToggle && (
-                <li>
-                  <span className="font-medium">Inflation</span> - With an
-                  inflation rate of {inflation}%, the value of your money
-                  decreases over time by{" "}
-                  {formatNumber(
-                    computedData?.totalWealth -
-                      computedData?.totalWealthWithoutInflation
-                  )}
-                  .
-                </li>
-              )}
               <li>
                 <span className="font-medium ">Investment Growth</span> -{" "}
                 Potential capital gains of

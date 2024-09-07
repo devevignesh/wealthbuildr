@@ -1,27 +1,43 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { formatNumber } from "@/lib/numbers";
 
+type Phase = "accumulation" | "growth";
+interface PhaseConfig {
+  minRate: number;
+  maxRate: number;
+}
 interface SavingsRateResult {
   savingsRate: number;
   feedback: React.ReactNode;
 }
 
-const calculateSavingsRate = (
+const phaseConfigs: Record<Phase, PhaseConfig> = {
+  accumulation: { minRate: 50, maxRate: 75 },
+  growth: { minRate: 20, maxRate: 20 }
+};
+
+export const calculateSavingsRate = (
   monthlySalary: number,
-  monthlyInvestment: number
+  monthlyInvestment: number,
+  phase: Phase
 ): SavingsRateResult => {
   const savingsRate =
     Math.round((monthlyInvestment / monthlySalary) * 10000) / 100;
+  const { minRate, maxRate } = phaseConfigs[phase];
+
   const feedback: React.ReactNode =
-    savingsRate < 50 ? (
+    savingsRate < minRate ? (
       <>
         Your monthly investment of {formatNumber(monthlyInvestment)} represents
         a{" "}
         <span className="text-red-500 font-medium">
           {savingsRate}% <TrendingDown className="inline-flex" />
         </span>{" "}
-        savings rate. This is {Math.round((50 - savingsRate) * 100) / 100}%
-        lower than the recommended 50-75% for the accumulation phase.
+        savings rate. This is {Math.round((minRate - savingsRate) * 100) / 100}%
+        lower than the recommended {phase === "accumulation"
+          ? `${minRate}-${maxRate}%`
+          : maxRate + "%"}{" "}
+        for the {phase} phase.
       </>
     ) : (
       <>
@@ -29,14 +45,14 @@ const calculateSavingsRate = (
         a{" "}
         <span className="text-emerald-700">
           {savingsRate}%{" "}
-          {savingsRate > 50 && <TrendingUp className="inline-flex" />}
+          {savingsRate > minRate && <TrendingUp className="inline-flex" />}
         </span>{" "}
-        savings rate, within the recommended 50-75% range for the accumulation
-        phase.
+        savings rate, within the recommended {phase === "accumulation"
+          ? `${minRate}-${maxRate}%`
+          : maxRate + "%"}{" "}
+        for the {phase} phase.
       </>
     );
 
   return { savingsRate, feedback };
 };
-
-export default calculateSavingsRate;

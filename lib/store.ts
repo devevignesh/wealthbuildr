@@ -35,6 +35,7 @@ interface AbundantPhase {
   combinedData: ChartDataPoint[];
   abundantPhaseAge: number;
   combinedNetWorth: number;
+  abundantSavingPeriod: number;
 }
 
 interface Settings {
@@ -43,7 +44,6 @@ interface Settings {
   savingsRate: number;
   salary: number;
   expense: number;
-  targetExpenseToSave: number; // New field for 50x target
   showAlert: boolean;
 }
 
@@ -53,12 +53,13 @@ export interface StoreInterface {
   abundantPhase: AbundantPhase;
   settings: Settings;
   inflationToggle: boolean;
+  targetExpenseToSave: number;
+  targetExpenseToSaveWithInflation: number;
   mergePhases: () => void;
   setAccumulationPhase: (newData: Partial<AccumulationPhase>) => void;
   setGrowthPhase: (newData: Partial<GrowthPhase>) => void;
   setAbundantPhase: (newData: Partial<AbundantPhase>) => void;
   setSettings: (newData: Partial<Settings>) => void;
-  setInflationToggle: () => void;
   calculateTargetExpense: (expense: number) => number;
 }
 
@@ -92,6 +93,7 @@ export const createWealthStore = () => {
           combinedNetWorth: 1000,
           combinedData: [],
           abundantPhaseAge: 1,
+          abundantSavingPeriod: 0,
           data: []
         },
         settings: {
@@ -100,13 +102,14 @@ export const createWealthStore = () => {
           salary: 2500000,
           age: 30,
           expense: 600000,
-          targetExpenseToSave: 30000000,
           showAlert: true
         },
         inflationToggle: false,
+        targetExpenseToSave: 30000000,
+        targetExpenseToSaveWithInflation: 0,
         calculateTargetExpense: (expense: number) => {
-          const growthPhaseGoal = get().growthPhase.goal;
-          return expense * (growthPhaseGoal * 2);
+          const finalGoal = 50;
+          return expense * finalGoal;
         },
         calculateAbundantPhaseAge: () =>
           set((state: StoreInterface) => {
@@ -128,7 +131,6 @@ export const createWealthStore = () => {
           set((state: StoreInterface) => {
             const accumulationData = state.accumulationPhase.data;
             const growthData = state.growthPhase.data;
-            const abundantData = state.abundantPhase.data;
 
             const combinedData = [
               ...accumulationData,
@@ -184,6 +186,14 @@ export const createWealthStore = () => {
               ...newData
             };
 
+            let targetExpenseToSaveWithInflation = state.targetExpenseToSave;
+            const years =
+              state.abundantPhase.abundantPhaseAge +
+              newData.abundantSavingPeriod! -
+              state.settings.age;
+            const inflationRate = state.settings.inflation / 100;
+            targetExpenseToSaveWithInflation =
+              state.targetExpenseToSave * Math.pow(1 + inflationRate, years);
             // Calculate the offset for the abundant phase data
             const offset =
               state.accumulationPhase.data.length +
@@ -203,7 +213,10 @@ export const createWealthStore = () => {
               abundantPhase: {
                 ...updatedAbundantPhase,
                 combinedData: updatedCombinedData
-              }
+              },
+              targetExpenseToSaveWithInflation: Math.round(
+                targetExpenseToSaveWithInflation
+              )
             };
           }),
         setSettings: newData =>
@@ -216,8 +229,9 @@ export const createWealthStore = () => {
 
             // Recalculate targetExpenseToSave if expense has changed
             if ("expense" in newData) {
-              updatedSettings.targetExpenseToSave =
-                get().calculateTargetExpense(updatedSettings.expense);
+              state.targetExpenseToSave = get().calculateTargetExpense(
+                updatedSettings.expense
+              );
             }
 
             // Set inflationToggle to true if inflation is greater than 0
@@ -228,11 +242,7 @@ export const createWealthStore = () => {
               settings: updatedSettings,
               inflationToggle
             };
-          }),
-        setInflationToggle: () =>
-          set((state: StoreInterface) => ({
-            inflationToggle: !state.inflationToggle
-          }))
+          })
       }),
       {
         name: "wealth-data"

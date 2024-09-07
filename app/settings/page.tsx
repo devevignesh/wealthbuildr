@@ -14,12 +14,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { useWealthStore } from '@/providers/wealth-store-provider'
+import { useWealthStore } from "@/providers/wealth-store-provider";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Settings() {
   const { toast } = useToast();
-  const { inflation, salary, age, expense } = useWealthStore(state => state.settings);
+  const { inflation, salary, age, expense } = useWealthStore(
+    state => state.settings
+  );
   const form = useForm({
     defaultValues: {
       age: age,
@@ -134,7 +136,7 @@ export default function Settings() {
                       }}
                       min={5000}
                       max={2000000}
-                      step={500}
+                      step={1000}
                       className=" w-full max-w-md !mt-6"
                       value={[form.getValues("expense")]}
                     />
@@ -208,7 +210,7 @@ export default function Settings() {
                       onValueChange={vals => {
                         field.onChange(vals[0]);
                       }}
-                      min={1}
+                      min={0}
                       max={15}
                       step={1}
                       className=" w-full max-w-md !mt-6"

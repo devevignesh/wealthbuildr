@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useEffect } from "react";
 import { Sparkles } from "lucide-react";
+import { addYears, format } from "date-fns";
 import { AreaChart, BarChart } from "@tremor/react";
 import { MaxWidthWrapper } from "@/components/max-width-wrapper";
 import SettingsAlert from "@/components/settings-alert";
@@ -157,10 +158,17 @@ export default function AbundantPhase() {
   const { combinedData, combinedNetWorth, abundantPhaseAge } = useWealthStore(
     state => state.abundantPhase
   );
-  const targetNetWorth = useWealthStore(
-    state => state.settings.targetExpenseToSave
+  const { inflation, age } = useWealthStore(state => state.settings);
+  const targetExpenseToSaveWithInflation = useWealthStore(
+    state => state.targetExpenseToSaveWithInflation
   );
+  const targetExpenseToSave = useWealthStore(
+    state => state.targetExpenseToSave
+  );
+  const inflationToggle = useWealthStore(state => state.inflationToggle);
+  const targetNetWorth = useWealthStore(state => state.targetExpenseToSave);
   const setAbundantPhase = useWealthStore(state => state.setAbundantPhase);
+
   const annualGrowthRate = 12;
   const computedData = useMemo(() => {
     const { years, wealthData, finalWealth, months } =
@@ -208,11 +216,17 @@ export default function AbundantPhase() {
       months
     };
   }, [combinedNetWorth, targetNetWorth, annualGrowthRate]);
+  const getEndYear = addYears(
+    new Date(),
+    abundantPhaseAge + computedData.roundedSavingPeriod - age
+  );
+  const formattedEndYear = format(getEndYear, "yyyy");
 
   useEffect(() => {
     setAbundantPhase({
       wealth: computedData.totalWealth,
-      data: computedData.chartData
+      data: computedData.chartData,
+      abundantSavingPeriod: computedData.roundedSavingPeriod
     });
   }, [setAbundantPhase, computedData]);
 
@@ -235,7 +249,7 @@ export default function AbundantPhase() {
             achievable. Dedication and smart investing make this ambitious goal
             possible.
           </p>
-          <div className="relative w-full rounded-lg border px-4 py-3 text-sm text-foreground mt-4 bg-amber-50 border-amber-200">
+          <div className="relative w-full rounded-lg border px-4 py-3 text-sm text-foreground mt-4 bg-blue-50 border-blue-200">
             <div className="text-sm [&_p]:leading-relaxed">
               <p className="leading-7 [&:not(:first-child)]:mt-6">
                 Your Accumulation Phase and Growth Phase savings of{" "}
@@ -245,6 +259,23 @@ export default function AbundantPhase() {
               </p>
             </div>
           </div>
+          {inflationToggle && (
+            <div className="relative w-full rounded-lg border px-4 py-3 text-sm text-foreground mt-4 bg-amber-50 border-amber-200">
+              <div className="text-sm [&_p]:leading-relaxed">
+              <p className="leading-7 [&:not(:first-child)]:mt-6">
+                Assuming an annual inflation rate of {inflation}%, the value of
+                50 times your annual expenses, which is{" "}
+                {formatNumber(targetExpenseToSave)} today, will inflate to{" "}
+                {formatNumber(targetExpenseToSaveWithInflation)} by{" "}
+                {formattedEndYear}. This increase reflects the diminishing
+                purchasing power of money over time, meaning what costs{" "}
+                {formatNumber(targetExpenseToSave)} today will require{" "}
+                {formatNumber(targetExpenseToSaveWithInflation)} in{" "}
+                {formattedEndYear} due to inflation.
+              </p>
+              </div>
+            </div>
+          )}
         </div>
         <div className="relative rounded-xl bg-white p-5 pt-10 sm:px-6 sm:py-10 border border-gray-200 mb-3">
           <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-4 lg:gap-8">
